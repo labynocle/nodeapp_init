@@ -1,0 +1,79 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides: __NODE_APP_NAME__
+# Required-Start:    $network $remote_fs $local_fs
+# Required-Stop:     $network $remote_fs $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: start and stop __NODE_APP_NAME__ node app
+# Description: script to launch the __NODE_APP_NAME__ node app
+### END INIT INFO
+
+
+# /!\ mandatory section /!\
+NODE_USER='_dashkiosk'
+NODE_BIN='/usr/local/bin/node'
+NODE_APP_DIR='/path/to/node/app/'
+NODE_ENV='production'
+NODE_APP='server.js'
+NODE_PORT=9500
+
+# And eventually...
+PID_FILE='/var/run/__NODE_APP_NAME__.pid'
+LOG_FILE='/var/log/__NODE_APP_NAME__/__NODE_APP_NAME__.log'
+
+# #############################################################################
+# 		Don't touch anything under this line!
+# 		You shall not pass - Gandalf is watching you
+# #############################################################################
+
+case "$1" in
+    start)
+
+	[ ! -d "`dirname $LOG_FILE`" ] && mkdir "`dirname $LOG_FILE`" && chown $NODE_USER "`dirname $LOG_FILE`"
+
+	echo "Starting __NODE_APP_NAME__: $NODE_APP_DIR/$NODE_APP ..."
+	start-stop-daemon --start --background --pidfile $PID_FILE --make-pidfile \
+	    --user $NODE_USER --chuid $NODE_USER --chdir $NODE_APP_DIR --exec $NODE_BIN -- \
+	    $NODE_APP_DIR/$NODE_APP --environment $NODE_ENV --port $NODE_PORT --log.file $LOG_FILE
+	EXIT_STATUS=$?
+	[ $EXIT_STATUS -eq 0 ] && echo "__NODE_APP_NAME__ well started"
+	[ $EXIT_STATUS -ne 0 ] && echo "__NODE_APP_NAME__ not well started"
+
+	exit $EXIT_STATUS
+    ;;
+
+    stop)
+	echo "Stopping __NODE_APP_NAME__: $NODE_APP_DIR/$NODE_APP ..."
+	start-stop-daemon --stop --pidfile $PID_FILE --exec $NODE_BIN --user $NODE_USER \
+	    --retry=TERM/30/KILL/5
+	EXIT_STATUS=$?
+	[ $EXIT_STATUS -eq 0 ] && echo "__NODE_APP_NAME__ well stopped"
+	[ $EXIT_STATUS -eq 1 ] && echo "__NODE_APP_NAME__ well not stopped"
+	[ $EXIT_STATUS -eq 2 ] && echo "__NODE_APP_NAME__ well stopped - but after several retries"
+
+        exit $EXIT_STATUS
+    ;;
+
+    restart)
+	$0 stop
+	sleep 2
+	$0 start
+    ;;
+
+    status)
+	start-stop-daemon --verbose --status --pidfile $PID_FILE --exec $NODE_BIN --user $NODE_USER
+	EXIT_STATUS=$?
+	[ $EXIT_STATUS -eq 0 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is running"
+	[ $EXIT_STATUS -eq 1 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is not running but $PID_FILE exists"
+	[ $EXIT_STATUS -eq 2 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is not running"
+
+	exit $EXIT_STATUS
+    ;;
+
+    *)
+	echo "Usage: $0 {start|stop|restart|status}"
+	exit 1
+    ;;
+esac
