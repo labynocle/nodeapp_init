@@ -12,7 +12,7 @@
 
 
 # /!\ mandatory section /!\
-NODE_USER='_dashkiosk'
+NODE_USER='your_user'
 NODE_BIN='/usr/local/bin/node'
 NODE_APP_DIR='/path/to/node/app/'
 NODE_ENV='production'
