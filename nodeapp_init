@@ -52,6 +52,7 @@ case "$1" in
 	[ $EXIT_STATUS -eq 0 ] && echo "__NODE_APP_NAME__ well stopped"
 	[ $EXIT_STATUS -eq 1 ] && echo "__NODE_APP_NAME__ well not stopped"
 	[ $EXIT_STATUS -eq 2 ] && echo "__NODE_APP_NAME__ well stopped - but after several retries"
+	[ $EXIT_STATUS -eq 3 ] && echo "__NODE_APP_NAME__ not stopped"
 
         exit $EXIT_STATUS
     ;;
@@ -67,7 +68,8 @@ case "$1" in
 	EXIT_STATUS=$?
 	[ $EXIT_STATUS -eq 0 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is running"
 	[ $EXIT_STATUS -eq 1 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is not running but $PID_FILE exists"
-	[ $EXIT_STATUS -eq 2 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is not running"
+	[ $EXIT_STATUS -eq 3 ] && echo "__NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP) is not running"
+	[ $EXIT_STATUS -eq 4 ] && echo "Unable to say anything about __NODE_APP_NAME__ ($NODE_APP_DIR/$NODE_APP)"
 
 	exit $EXIT_STATUS
     ;;
